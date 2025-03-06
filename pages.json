@@ -4,6 +4,16 @@
 		"style": {
 			"navigationBarTitleText": "uni-app"
 		}
+	}, {
+		"path": "pages/public/login",
+		"style": {
+			"navigationBarTitleText": "",
+			"navigationStyle": "custom",
+			"app-plus": {
+				"titleNView": false,
+				"animationType": "slide-in-bottom"
+			}
+		}
 	}],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",

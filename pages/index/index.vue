@@ -1,16 +1,22 @@
 <template>
 	<div>
 		<button @click="fetchData">Get Data</button>
+		<button @click="gotoLogin">去登录</button>
 		<pre v-if="response">{{ response }}</pre>
 	</div>
 </template>
 
 <script>
+	import { mapState } from 'vuex';
+	
 	export default {
 		data() {
 			return {
 				response: null,
 			};
+		},
+		computed: {
+			...mapState(['hasLogin','userInfo'])
 		},
 		methods: {
 			async fetchData() {
@@ -33,6 +39,11 @@
 				} catch (error) {
 					this.response = `Error: ${error.message}`;
 				}
+			},
+			gotoLogin() {
+				uni.navigateTo({  
+					url: '/pages/public/login'
+				})
 			}
 		},
 	};
