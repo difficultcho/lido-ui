@@ -17,12 +17,13 @@
 		<!-- 侧边栏菜单 -->
 		<view class="sidebar" :class="{'sidebar-open': showSidebar, 'sidebar-mobile': isMobile}">
 			<scroll-view scroll-y class="menu-scroll">
-				<view v-for="(item, index) in menuItems" :key="index" class="menu-item" :class="{ active: x() }"
+				<!-- <view v-for="(item, index) in menuItems" :key="index" class="menu-item" :class="{ active: isActiveMenu(item) }"
 					@click="handleMenuClick(item)">
-					<!-- @click="switchContent(item)"> -->
 					<uni-icons :type="item.icon" size="18"></uni-icons>
 					<text class="menu-text">{{ item.title }}</text>
-				</view>
+				</view> -->
+				<tree-menu :data="menuTree" :active-component="activeComponent" @item-click="handleMenuItemClick"
+					@toggle-folder="handleFolderToggle" />
 			</scroll-view>
 		</view>
 
@@ -72,6 +73,7 @@
 	import {
 		getMenu
 	} from '@/api/member.js';
+	import TreeMenu from '@/components/treeMenu/treeMenu.vue'
 
 	export default {
 		props: {
@@ -83,7 +85,8 @@
 		components: {
 			Home,
 			User,
-			Order
+			Order,
+			TreeMenu
 		},
 		data() {
 			return {
@@ -98,6 +101,9 @@
 				tabs: [], // 打开的标签页
 				activeTabId: null, // 当前激活的标签页ID
 				nextTabId: 1, // 下一个标签页ID
+
+
+				menuTree: []
 			}
 		},
 		computed: {
@@ -117,12 +123,12 @@
 
 
 
-			this.menuItems = res.map(item => ({
+			this.menuTree = res.map(item => ({
 				...item
 			}))
 		},
 		methods: {
-			x() {
+			isActiveMenu(item) {
 				return false;
 			},
 			toLogin() {
@@ -232,6 +238,30 @@
 					}
 				}
 			},
+
+			// 处理文件夹切换
+			handleFolderToggle(currentItem) {
+				const closeSiblings = (items) => {
+					items.forEach(item => {
+						if (item.isFolder && item !== currentItem) {
+							this.$set(item, 'isOpen', false)
+							if (item.children) closeSiblings(item.children)
+						}
+					})
+				}
+
+				// 切换当前目录状态
+				this.$set(currentItem, 'isOpen', !currentItem.isOpen)
+				// 关闭其他同级目录
+				closeSiblings(this.menuTree)
+			},
+
+			// 处理菜单点击
+			handleMenuItemClick(item) {
+				this.activeComponent = item.component
+				
+				this.handleMenuClick(item);
+			}
 		}
 	}
 </script>
