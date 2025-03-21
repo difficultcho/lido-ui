@@ -42,18 +42,18 @@ export function memberInfo() {
 export function getMenu() {
 	const immediatePromise = new Promise((resolve) => {
 		const menus = [{
-				text: '首页',
-				name: 'Home',
+				title: '首页',
+				component: 'Home',
 				icon: 'home'
 			},
 			{
-				text: '用户管理',
-				name: 'User',
+				title: '用户管理',
+				component: 'User',
 				icon: 'person'
 			},
 			{
-				text: '订单管理',
-				name: 'Order',
+				title: '订单管理',
+				component: 'Order',
 				icon: 'cart'
 			}
 		];

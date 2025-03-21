@@ -15,15 +15,13 @@
 		<view v-if="showSidebar && isMobile" class="sidebar-mask" @click="toggleSidebar"></view>
 
 		<!-- 侧边栏菜单 -->
-		<view class="sidebar" :class="{
-        'sidebar-open': showSidebar,
-        'sidebar-mobile': isMobile
-      }">
+		<view class="sidebar" :class="{'sidebar-open': showSidebar, 'sidebar-mobile': isMobile}">
 			<scroll-view scroll-y class="menu-scroll">
 				<view v-for="(item, index) in menuItems" :key="index" class="menu-item" :class="{ active: x() }"
-					@click="switchContent(item)">
+					@click="handleMenuClick(item)">
+					<!-- @click="switchContent(item)"> -->
 					<uni-icons :type="item.icon" size="18"></uni-icons>
-					<text class="menu-text">{{ item.text }}</text>
+					<text class="menu-text">{{ item.title }}</text>
 				</view>
 			</scroll-view>
 		</view>
@@ -31,12 +29,38 @@
 		<!-- 页面内容 -->
 		<view class="content">
 			<!-- 动态组件容器 -->
-			<view class="content-wrapper">
+			<!-- 			<view class="content-wrapper">
 				{{contentParams}}
 				<keep-alive :include="cachedComponents">
 					<component :is="activeComponent" :key="componentKey" class="content-component" />
 				</keep-alive>
+			</view> -->
+
+
+
+
+			<!-- 标签页导航 -->
+			<view class="tabs-bar">
+				<scroll-view scroll-x class="tabs-scroll">
+					<view v-for="(tab, index) in tabs" :key="tab.id" class="tab-item"
+						:class="{ active: activeTabId === tab.id }" @click="switchTab(tab.id)">
+						<text class="tab-title">{{ tab.title }}</text>
+						<uni-icons type="close" size="14" class="close-icon" @click.stop="closeTab(tab.id)"></uni-icons>
+					</view>
+				</scroll-view>
 			</view>
+			<!-- 标签页内容 -->
+			<view class="tabs-content">
+				<keep-alive>
+					<template v-for="tab in tabs" :key="tab.id">
+						<view v-show="activeTabId === tab.id">
+							<component :is="tab.component" :ref="`tabContent_${tab.id}`" />
+						</view>
+					</template>
+				</keep-alive>
+			</view>
+
+
 		</view>
 	</view>
 </template>
@@ -69,7 +93,11 @@
 				activeComponent: 'Home',
 				componentKey: 0,
 				menuItems: [],
-				cachedComponents: ['Home', 'User'] // 需要缓存的组件名
+				cachedComponents: ['Home', 'User'], // 需要缓存的组件名
+
+				tabs: [], // 打开的标签页
+				activeTabId: null, // 当前激活的标签页ID
+				nextTabId: 1, // 下一个标签页ID
 			}
 		},
 		computed: {
@@ -139,7 +167,71 @@
 						console.warn(`组件 ${item.name} 加载耗时过长: ${duration}ms`)
 					}
 				})
-			}
+			},
+
+
+
+
+
+
+
+
+
+
+			// 点击菜单项打开新标签
+			handleMenuClick(menu) {
+				const existingTab = this.tabs.find(tab =>
+					tab.component === menu.component
+				)
+
+				if (existingTab) {
+					this.switchTab(existingTab.id)
+				} else {
+					this.openNewTab(menu)
+				}
+			},
+
+			// 打开新标签页
+			openNewTab(menu) {
+				const newTab = {
+					id: `tab_${this.nextTabId++}`,
+					title: menu.title,
+					component: menu.component,
+					keepAlive: menu.keepAlive || false,
+					timestamp: Date.now()
+				}
+
+				this.tabs = [...this.tabs, newTab]
+				this.activeTabId = newTab.id
+			},
+
+			// 切换标签页
+			switchTab(tabId) {
+				this.activeTabId = tabId
+				// 触发组件的激活事件（如果需要）
+				const ref = this.$refs[`tabContent_${tabId}`]?.[0]
+				if (ref && ref.onTabActivate) {
+					ref.onTabActivate()
+				}
+			},
+
+			// 关闭标签页
+			closeTab(tabId) {
+				const index = this.tabs.findIndex(tab => tab.id === tabId)
+				if (index === -1) return
+
+				const newTabs = this.tabs.filter(tab => tab.id !== tabId)
+				this.tabs = newTabs
+
+				// 自动切换标签逻辑
+				if (this.activeTabId === tabId) {
+					if (newTabs.length > 0) {
+						this.activeTabId = newTabs[Math.max(0, index - 1)].id
+					} else {
+						this.activeTabId = null
+					}
+				}
+			},
 		}
 	}
 </script>
@@ -250,6 +342,56 @@
 		&.content-shift {
 			margin-left: 240px;
 		}
+	}
+
+	.tabs-bar {
+		height: 40px;
+		background: #f5f5f5;
+		border-bottom: 1px solid #ddd;
+	}
+
+	.tabs-scroll {
+		white-space: nowrap;
+		height: 100%;
+	}
+
+	.tab-item {
+		display: inline-flex;
+		align-items: center;
+		height: 100%;
+		padding: 0 20px;
+		border-right: 1px solid #ddd;
+		background: #fff;
+		position: relative;
+
+		&.active {
+			background: #fff;
+			border-bottom: 2px solid #1890ff;
+		}
+
+		.tab-title {
+			max-width: 120px;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		.close-icon {
+			margin-left: 8px;
+			padding: 4px;
+			border-radius: 50%;
+			transition: background 0.2s;
+
+			&:hover {
+				background: #f0f0f0;
+			}
+		}
+	}
+
+	.tabs-content {
+		height: calc(100vh - 100px);
+		/* 根据实际布局调整 */
+		overflow: auto;
 	}
 
 	@media (max-width: 768px) {
