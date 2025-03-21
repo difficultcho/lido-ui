@@ -32,16 +32,22 @@
 		<view class="content">
 			<!-- 动态组件容器 -->
 			<view class="content-wrapper">
-				<component :is="activeComponent" :key="componentKey" class="content-component" />
+				{{contentParams}}
+				<keep-alive :include="cachedComponents">
+					<component :is="activeComponent" :key="componentKey" class="content-component" />
+				</keep-alive>
 			</view>
 		</view>
 	</view>
 </template>
 
 <script>
-import Home from '@/components/content/Home.vue'
-import User from '@/components/content/User.vue'
-import Order from '@/components/content/Order.vue'
+	import Home from '@/components/content/Home.vue'
+	import User from '@/components/content/User.vue'
+	import Order from '@/components/content/Order.vue'
+	import {
+		getMenu
+	} from '@/api/member.js';
 
 	export default {
 		props: {
@@ -50,6 +56,11 @@ import Order from '@/components/content/Order.vue'
 				default: '应用标题'
 			}
 		},
+		components: {
+			Home,
+			User,
+			Order
+		},
 		data() {
 			return {
 				showSidebar: false,
@@ -57,22 +68,13 @@ import Order from '@/components/content/Order.vue'
 
 				activeComponent: 'Home',
 				componentKey: 0,
-				menuItems: [{
-						text: '首页',
-						name: 'Home',
-						icon: 'home'
-					},
-					{
-						text: '用户管理',
-						name: 'User',
-						icon: 'person'
-					},
-					{
-						text: '订单管理',
-						name: 'Order',
-						icon: 'cart'
-					}
-				]
+				menuItems: [],
+				cachedComponents: ['Home', 'User'] // 需要缓存的组件名
+			}
+		},
+		computed: {
+			contentParams() {
+				return this.$store.state.userInfo
 			}
 		},
 		mounted() {
@@ -82,10 +84,14 @@ import Order from '@/components/content/Order.vue'
 		beforeDestroy() {
 			uni.$off('toggleSidebar', this.toggleSidebar)
 		},
-		components: {
-		    Home,
-		    User,
-		    Order
+		async created() {
+			const res = await getMenu()
+
+
+
+			this.menuItems = res.map(item => ({
+				...item
+			}))
 		},
 		methods: {
 			x() {
@@ -124,6 +130,15 @@ import Order from '@/components/content/Order.vue'
 				setTimeout(() => {
 					uni.hideLoading()
 				}, 300)
+
+				const start = Date.now()
+
+				this.$nextTick(() => {
+					const duration = Date.now() - start
+					if (duration > 1000) {
+						console.warn(`组件 ${item.name} 加载耗时过长: ${duration}ms`)
+					}
+				})
 			}
 		}
 	}

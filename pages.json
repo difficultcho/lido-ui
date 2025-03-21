@@ -2,7 +2,10 @@
 	"pages": [{
 		"path": "pages/layout/MainLayout",
 		"style": {
-			"navigationBarTitleText": "uni-app"
+			"navigationBarTitleText": "uni-app",
+			"h5": {
+			    "navigationStyle": "custom"
+			}
 		}
 	}, {
 		"path": "pages/index/index",
