@@ -1,5 +1,5 @@
 <template>
-	Home
+	Role
 </template>
 
 <script>

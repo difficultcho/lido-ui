@@ -4,10 +4,10 @@
 		<view class="header">
 			<view class="left-section">
 				<uni-icons type="bars" size="24" color="#333" @click="toggleSidebar"></uni-icons>
-				<text class="title">{{ title }}</text>
+				<text class="title">{{ title + ' ' + userInfo.name }}</text>
 			</view>
 			<view class="right-section">
-				<uni-icons type="person" size="24" color="#333" @click="toLogin"></uni-icons>
+				<uni-icons type="person" size="24" color="#333" @click="login"></uni-icons>
 			</view>
 		</view>
 
@@ -17,11 +17,6 @@
 		<!-- 侧边栏菜单 -->
 		<view class="sidebar" :class="{'sidebar-open': showSidebar, 'sidebar-mobile': isMobile}">
 			<scroll-view scroll-y class="menu-scroll">
-				<!-- <view v-for="(item, index) in menuItems" :key="index" class="menu-item" :class="{ active: isActiveMenu(item) }"
-					@click="handleMenuClick(item)">
-					<uni-icons :type="item.icon" size="18"></uni-icons>
-					<text class="menu-text">{{ item.title }}</text>
-				</view> -->
 				<tree-menu :data="menuTree" :active-component="activeComponent" @item-click="handleMenuItemClick"
 					@toggle-folder="handleFolderToggle" />
 			</scroll-view>
@@ -29,24 +24,13 @@
 
 		<!-- 页面内容 -->
 		<view class="content">
-			<!-- 动态组件容器 -->
-			<!-- 			<view class="content-wrapper">
-				{{contentParams}}
-				<keep-alive :include="cachedComponents">
-					<component :is="activeComponent" :key="componentKey" class="content-component" />
-				</keep-alive>
-			</view> -->
-
-
-
-
-			<!-- 标签页导航 -->
+			<!-- 标签页标签头 -->
 			<view class="tabs-bar">
 				<scroll-view scroll-x class="tabs-scroll">
 					<view v-for="(tab, index) in tabs" :key="tab.id" class="tab-item"
 						:class="{ active: activeTabId === tab.id }" @click="switchTab(tab.id)">
 						<text class="tab-title">{{ tab.title }}</text>
-						<uni-icons type="close" size="14" class="close-icon" @click.stop="closeTab(tab.id)"></uni-icons>
+						<uni-icons type="close" size="14" class="close-icon" @click="closeTab(tab.id)"></uni-icons>
 					</view>
 				</scroll-view>
 			</view>
@@ -60,20 +44,18 @@
 					</template>
 				</keep-alive>
 			</view>
-
-
 		</view>
 	</view>
 </template>
 
 <script>
-	import Home from '@/components/content/Home.vue'
 	import User from '@/components/content/User.vue'
+	import Role from '@/components/content/Role.vue'
 	import Order from '@/components/content/Order.vue'
+	import TreeMenu from '@/components/treeMenu/treeMenu.vue'
 	import {
 		getMenu
-	} from '@/api/member.js';
-	import TreeMenu from '@/components/treeMenu/treeMenu.vue'
+	} from '@/api/query.js';
 
 	export default {
 		props: {
@@ -83,8 +65,8 @@
 			}
 		},
 		components: {
-			Home,
 			User,
+			Role,
 			Order,
 			TreeMenu
 		},
@@ -93,21 +75,17 @@
 				showSidebar: false,
 				isMobile: false,
 
-				activeComponent: 'Home',
-				componentKey: 0,
-				menuItems: [],
-				cachedComponents: ['Home', 'User'], // 需要缓存的组件名
+				activeComponent: 'User',
 
 				tabs: [], // 打开的标签页
 				activeTabId: null, // 当前激活的标签页ID
 				nextTabId: 1, // 下一个标签页ID
 
-
 				menuTree: []
 			}
 		},
 		computed: {
-			contentParams() {
+			userInfo() {
 				return this.$store.state.userInfo
 			}
 		},
@@ -120,25 +98,11 @@
 		},
 		async created() {
 			const res = await getMenu()
-
-
-
 			this.menuTree = res.map(item => ({
 				...item
 			}))
 		},
 		methods: {
-			isActiveMenu(item) {
-				return false;
-			},
-			toLogin() {
-				uni.navigateTo({
-					url: '/pages/public/login'
-				})
-			},
-			toggleSidebar() {
-				this.showSidebar = !this.showSidebar
-			},
 			checkPlatform() {
 				// 根据屏幕宽度判断是否移动端
 				const {
@@ -148,55 +112,41 @@
 				// 初始化侧边栏状态
 				this.showSidebar = !this.isMobile
 			},
-			switchContent(item) {
-				if (this.activeComponent === item.name) return
-
-				// 添加切换动画
-				uni.showLoading({
-					title: '加载中',
-					mask: true
-				})
-
-				this.activeComponent = item.name
-				this.componentKey++ // 强制刷新组件
-
-				// 模拟加载延迟
-				setTimeout(() => {
-					uni.hideLoading()
-				}, 300)
-
-				const start = Date.now()
-
-				this.$nextTick(() => {
-					const duration = Date.now() - start
-					if (duration > 1000) {
-						console.warn(`组件 ${item.name} 加载耗时过长: ${duration}ms`)
-					}
+			login() {
+				uni.navigateTo({
+					url: '/pages/public/login'
 				})
 			},
-
-
-
-
-
-
-
-
-
-
-			// 点击菜单项打开新标签
-			handleMenuClick(menu) {
+			toggleSidebar() {
+				this.showSidebar = !this.showSidebar
+			},
+			// 点击文件夹切换
+			handleFolderToggle(currentItem) {
+				const closeSiblings = (items) => {
+					items.forEach(item => {
+						if (item.isFolder && item !== currentItem) {
+							this.$set(item, 'isOpen', false)
+							if (item.children) closeSiblings(item.children)
+						}
+					})
+				}			
+				// 切换当前目录状态
+				this.$set(currentItem, 'isOpen', !currentItem.isOpen)
+				// 关闭其他同级目录
+				closeSiblings(this.menuTree)
+			},
+			// 点击菜单打开页面
+			handleMenuItemClick(item) {
+				this.activeComponent = item.component
 				const existingTab = this.tabs.find(tab =>
-					tab.component === menu.component
+					tab.component === item.component
 				)
-
 				if (existingTab) {
 					this.switchTab(existingTab.id)
 				} else {
-					this.openNewTab(menu)
+					this.openNewTab(item)
 				}
 			},
-
 			// 打开新标签页
 			openNewTab(menu) {
 				const newTab = {
@@ -210,7 +160,6 @@
 				this.tabs = [...this.tabs, newTab]
 				this.activeTabId = newTab.id
 			},
-
 			// 切换标签页
 			switchTab(tabId) {
 				this.activeTabId = tabId
@@ -220,7 +169,6 @@
 					ref.onTabActivate()
 				}
 			},
-
 			// 关闭标签页
 			closeTab(tabId) {
 				const index = this.tabs.findIndex(tab => tab.id === tabId)
@@ -238,30 +186,6 @@
 					}
 				}
 			},
-
-			// 处理文件夹切换
-			handleFolderToggle(currentItem) {
-				const closeSiblings = (items) => {
-					items.forEach(item => {
-						if (item.isFolder && item !== currentItem) {
-							this.$set(item, 'isOpen', false)
-							if (item.children) closeSiblings(item.children)
-						}
-					})
-				}
-
-				// 切换当前目录状态
-				this.$set(currentItem, 'isOpen', !currentItem.isOpen)
-				// 关闭其他同级目录
-				closeSiblings(this.menuTree)
-			},
-
-			// 处理菜单点击
-			handleMenuItemClick(item) {
-				this.activeComponent = item.component
-				
-				this.handleMenuClick(item);
-			}
 		}
 	}
 </script>

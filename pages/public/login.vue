@@ -38,8 +38,8 @@
 		mapMutations
 	} from 'vuex';
 	import {
-		memberLogin, memberInfo
-	} from '@/api/member.js';
+		userLogin, getUserInfo
+	} from '@/api/query.js';
 	export default {
 		data() {
 			return {
@@ -62,21 +62,21 @@
 			},
 			async toLogin() {
 				this.logining = true;
-				memberLogin({
+				userLogin({
 					username: this.username,
 					password: this.password
 				}).then(response => {
-					console.log('------------------')
+					console.log('------- userLogin -------')
 					console.log(response);
-					console.log('------------------')
+					console.log('-------------------------')
 					let token = response.data.tokenHead+response.data.token;
 					uni.setStorageSync('token',token);
 					uni.setStorageSync('username',this.username);
 					uni.setStorageSync('password',this.password);
-					memberInfo().then(response=>{
-						console.log('==================')
+					getUserInfo().then(response=>{
+						console.log('========= userInfo =========')
 						console.log(response)
-						console.log('==================')
+						console.log('============================')
 						this.login(response.data);
 						uni.navigateBack();
 					});

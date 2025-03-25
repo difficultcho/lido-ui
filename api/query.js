@@ -1,6 +1,4 @@
-//import request from '@/utils/requestUtil'
-
-export function memberLogin(data) {
+export function userLogin(data) {
 	const immediatePromise = new Promise((resolve) => {
 		const jsonObject = {
 			data: {
@@ -12,17 +10,17 @@ export function memberLogin(data) {
 	});
 
 	return immediatePromise;
-	// 	return request({
-	// 		method: 'POST',
-	// 		url: '/sso/login',
-	// 		header: {
-	// 			'content-type': 'application/x-www-form-urlencoded;charset=utf-8'
-	// 		},
-	// 		data: data
-	// 	})
+	// return request({
+	// 	method: 'POST',
+	// 	url: '/sso/login',
+	// 	header: {
+	// 		'content-type': 'application/x-www-form-urlencoded;charset=utf-8'
+	// 	},
+	// 	data: data
+	// })
 }
 
-export function memberInfo() {
+export function getUserInfo() {
 	const immediatePromise = new Promise((resolve) => {
 		const jsonObject = {
 			data: {
@@ -68,14 +66,8 @@ export function getMenu() {
 				children: [{
 						id: 'order-list',
 						title: '订单列表',
-						component: 'OrderList',
+						component: 'Order',
 						icon: 'list'
-					},
-					{
-						id: 'order-stats',
-						title: '订单统计',
-						component: 'OrderStats',
-						icon: 'chart'
 					}
 				]
 			}
@@ -84,8 +76,4 @@ export function getMenu() {
 	});
 
 	return immediatePromise;
-	// return request({
-	// 	method: 'GET',
-	// 	url: '/sso/info'
-	// })
 }
