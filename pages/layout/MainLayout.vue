@@ -75,11 +75,10 @@
 				showSidebar: false,
 				isMobile: false,
 
-				activeComponent: 'User',
+				activeComponent: '',
 
 				tabs: [], // 打开的标签页
 				activeTabId: null, // 当前激活的标签页ID
-				nextTabId: 1, // 下一个标签页ID
 
 				menuTree: []
 			}
@@ -137,7 +136,7 @@
 			},
 			// 点击菜单打开页面
 			handleMenuItemClick(item) {
-				this.activeComponent = item.component
+				this.activeComponent = item.id
 				const existingTab = this.tabs.find(tab =>
 					tab.component === item.component
 				)
@@ -150,7 +149,7 @@
 			// 打开新标签页
 			openNewTab(menu) {
 				const newTab = {
-					id: `tab_${this.nextTabId++}`,
+					id: menu.id,
 					title: menu.title,
 					component: menu.component,
 					keepAlive: menu.keepAlive || false,
@@ -162,6 +161,13 @@
 			},
 			// 切换标签页
 			switchTab(tabId) {
+				this.activeComponent = tabId
+				let folder = this.findFolder(null, this.menuTree, tabId).filter(item => item);
+				if (!folder[0].isOpen) {
+					// TODO 需要完善，目前只打开分支上的第一级菜单
+					this.handleFolderToggle(folder[0]);
+				}
+				
 				this.activeTabId = tabId
 				// 触发组件的激活事件（如果需要）
 				const ref = this.$refs[`tabContent_${tabId}`]?.[0]
@@ -186,6 +192,24 @@
 					}
 				}
 			},
+			// 找到触发开启的目录
+			findFolder(parent, children, itemId) {
+				for (let item of children) {
+					if (item.isFolder) {
+						if (item.children) {
+							let ret = this.findFolder(item, item.children, itemId)
+							if (ret) {
+								return [parent, ...ret]
+							}
+						}
+					} else {
+						if (item.id == itemId) {
+							return [parent]
+						}
+					}
+				}
+				return null;
+			}
 		}
 	}
 </script>

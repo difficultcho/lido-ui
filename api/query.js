@@ -69,7 +69,7 @@ export function getMenu() {
 						id: 'order-list',
 						title: '订单列表',
 						component: 'Order',
-						icon: 'list'
+						icon: 'shop'
 					}
 				]
 			}
