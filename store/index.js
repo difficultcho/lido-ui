@@ -15,6 +15,7 @@ const store = new Vuex.Store({
 			}) 
 		},
 		logout(state) {
+			debugger
 			state.hasLogin = false;
 			state.userInfo = {};
 			uni.removeStorage({  

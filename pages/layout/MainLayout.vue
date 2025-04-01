@@ -8,6 +8,7 @@
 			</view>
 			<view class="right-section">
 				<uni-icons type="person" size="24" color="#333" @click="login"></uni-icons>
+				<uni-icons type="person" size="24" color="#333" @click="toLogout"></uni-icons>
 			</view>
 		</view>
 
@@ -56,6 +57,9 @@
 	import {
 		getMenu
 	} from '@/api/query.js';
+	import {
+		mapMutations
+	} from 'vuex';
 
 	export default {
 		props: {
@@ -102,6 +106,7 @@
 			}))
 		},
 		methods: {
+			...mapMutations(['logout']),
 			checkPlatform() {
 				// 根据屏幕宽度判断是否移动端
 				const {
@@ -115,6 +120,10 @@
 				uni.navigateTo({
 					url: '/pages/public/login'
 				})
+			},
+			toLogout() {
+				debugger
+				this.logout();
 			},
 			toggleSidebar() {
 				this.showSidebar = !this.showSidebar
