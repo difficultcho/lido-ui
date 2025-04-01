@@ -1,5 +1,6 @@
 <template>
 	<view class="container">
+		<view>{{ userInfo }}</view>
 		<!-- 操作栏 -->
 		<view class="action-bar">
 			<button type="primary" @click="openDialog('add')">新增</button>
@@ -63,6 +64,11 @@
 					description: ''
 				},
 				currentIndex: -1 // 当前操作的索引
+			}
+		},
+		computed: {
+			userInfo() {
+				return this.$store.state.userInfo
 			}
 		},
 		methods: {
