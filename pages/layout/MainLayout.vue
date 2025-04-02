@@ -12,17 +12,8 @@
 		</view>
 
 		<!-- 登出 -->
-		<uni-drawer ref="showRight" mode="right" :mask-click="true">
-			<text>{{ 你好 + ' ' + userInfo.name }}</text>
-			<text>{{ 你好 + ' ' + userInfo.name }}</text>
-			<text>{{ 你好 + ' ' + userInfo.name }}</text>
-			<text>{{ 你好 + ' ' + userInfo.name }}</text>
-			<text>{{ 你好 + ' ' + userInfo.name }}</text>
-			<text>{{ 你好 + ' ' + userInfo.name }}</text>
-			<text>{{ 你好 + ' ' + userInfo.name }}</text>
-			<text>{{ 你好 + ' ' + userInfo.name }}</text>
-			<text>{{ 你好 + ' ' + userInfo.name }}</text>
-			<text>{{ 你好 + ' ' + userInfo.name }}</text>
+		<uni-drawer class="logoutDrawer" ref="showRight" mode="right" :mask-click="true">
+			<text>{{ '用户 ' + userInfo.name + ' 登出' }}</text>
 			<button type="default" @click="toLogout()">退出登录</button>
 		</uni-drawer>
 
@@ -399,6 +390,10 @@
 		height: calc(100vh - 100px);
 		/* 根据实际布局调整 */
 		overflow: auto;
+	}
+	
+	.logoutDrawer {
+		margin-top: 60px;
 	}
 
 	@media (max-width: 768px) {
