@@ -122,7 +122,6 @@
 				})
 			},
 			toLogout() {
-				debugger
 				this.logout();
 			},
 			toggleSidebar() {
@@ -352,6 +351,7 @@
 		position: relative;
 
 		&.active {
+			color: #3d2;
 			background: #fff;
 			border-bottom: 2px solid #1890ff;
 		}
