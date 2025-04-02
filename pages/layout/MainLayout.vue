@@ -4,13 +4,27 @@
 		<view class="header">
 			<view class="left-section">
 				<uni-icons type="bars" size="24" color="#333" @click="toggleSidebar"></uni-icons>
-				<text class="title">{{ title + ' ' + userInfo.name }}</text>
+				<text class="title">{{ title }}</text>
 			</view>
 			<view class="right-section">
-				<uni-icons type="person" size="24" color="#333" @click="login"></uni-icons>
-				<uni-icons type="person" size="24" color="#333" @click="toLogout"></uni-icons>
+				<uni-icons type="person" size="24" color="#333" @click="showLogoutDrawer"></uni-icons>
 			</view>
 		</view>
+
+		<!-- 登出 -->
+		<uni-drawer ref="showRight" mode="right" :mask-click="true">
+			<text>{{ 你好 + ' ' + userInfo.name }}</text>
+			<text>{{ 你好 + ' ' + userInfo.name }}</text>
+			<text>{{ 你好 + ' ' + userInfo.name }}</text>
+			<text>{{ 你好 + ' ' + userInfo.name }}</text>
+			<text>{{ 你好 + ' ' + userInfo.name }}</text>
+			<text>{{ 你好 + ' ' + userInfo.name }}</text>
+			<text>{{ 你好 + ' ' + userInfo.name }}</text>
+			<text>{{ 你好 + ' ' + userInfo.name }}</text>
+			<text>{{ 你好 + ' ' + userInfo.name }}</text>
+			<text>{{ 你好 + ' ' + userInfo.name }}</text>
+			<button type="default" @click="toLogout()">退出登录</button>
+		</uni-drawer>
 
 		<!-- 侧边栏遮罩层 -->
 		<view v-if="showSidebar && isMobile" class="sidebar-mask" @click="toggleSidebar"></view>
@@ -93,6 +107,11 @@
 			}
 		},
 		mounted() {
+			if (!this.userInfo.name) {
+				uni.navigateTo({
+					url: '/pages/public/login'
+				})
+			}
 			this.checkPlatform()
 			uni.$on('toggleSidebar', this.toggleSidebar)
 		},
@@ -116,13 +135,14 @@
 				// 初始化侧边栏状态
 				this.showSidebar = !this.isMobile
 			},
-			login() {
-				uni.navigateTo({
-					url: '/pages/public/login'
-				})
+			showLogoutDrawer() {
+				this.$refs.showRight.open();
 			},
 			toLogout() {
 				this.logout();
+				uni.navigateTo({
+					url: '/'
+				})
 			},
 			toggleSidebar() {
 				this.showSidebar = !this.showSidebar
@@ -136,7 +156,7 @@
 							if (item.children) closeSiblings(item.children)
 						}
 					})
-				}			
+				}
 				// 切换当前目录状态
 				this.$set(currentItem, 'isOpen', !currentItem.isOpen)
 				// 关闭其他同级目录
@@ -175,7 +195,7 @@
 					// TODO 需要完善，目前只打开分支上的第一级菜单
 					this.handleFolderToggle(folder[0]);
 				}
-				
+
 				this.activeTabId = tabId
 				// 触发组件的激活事件（如果需要）
 				const ref = this.$refs[`tabContent_${tabId}`]?.[0]

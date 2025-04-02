@@ -78,7 +78,9 @@
 						console.log(response)
 						console.log('============================')
 						this.login(response.data);
-						uni.navigateBack();
+						uni.navigateTo({
+							url: '/'
+						})
 					});
 				}).catch(() => {
 					this.logining = false;
