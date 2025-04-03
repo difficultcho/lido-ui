@@ -1,6 +1,5 @@
 <template>
 	<view class="container">
-		<view>{{ userInfo }}</view>
 		<!-- 操作栏 -->
 		<view class="action-bar">
 			<button type="primary" @click="openDialog('add')">新增</button>
