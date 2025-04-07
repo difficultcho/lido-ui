@@ -4,12 +4,12 @@
     <div class="header-actions">
       <van-search
         v-model="searchQuery"
-        placeholder="Search by task name or status"
+        placeholder="查找"
         shape="round"
         class="search-bar"
       />
       <van-button type="primary" @click="showAddDialog" class="add-btn">
-        Add New Task
+        新增
       </van-button>
     </div>
 
@@ -17,10 +17,10 @@
     <div class="task-table">
       <div class="table-header">
         <span @click="sortTasks('id')">ID {{ sortField === 'id' ? (sortAsc ? '↑' : '↓') : '' }}</span>
-        <span @click="sortTasks('name')">Task Name {{ sortField === 'name' ? (sortAsc ? '↑' : '↓') : '' }}</span>
-        <span @click="sortTasks('status')">Status {{ sortField === 'status' ? (sortAsc ? '↑' : '↓') : '' }}</span>
-        <span @click="sortTasks('date')">Date Added {{ sortField === 'date' ? (sortAsc ? '↑' : '↓') : '' }}</span>
-        <span>Actions</span>
+        <span @click="sortTasks('name')">名字 {{ sortField === 'name' ? (sortAsc ? '↑' : '↓') : '' }}</span>
+        <span @click="sortTasks('status')">状态 {{ sortField === 'status' ? (sortAsc ? '↑' : '↓') : '' }}</span>
+        <span @click="sortTasks('date')">日期 {{ sortField === 'date' ? (sortAsc ? '↑' : '↓') : '' }}</span>
+        <span>操作</span>
       </div>
       <van-grid :column-num="1" :border="false" class="table-body">
         <van-grid-item v-for="(task, index) in paginatedTasks" :key="index">
@@ -31,10 +31,10 @@
             <span>{{ task.date }}</span>
             <span class="actions">
               <van-button type="warning" size="small" @click="showEditDialog((currentPage - 1) * pageSize + index)">
-                Edit
+                编辑
               </van-button>
               <van-button type="danger" size="small" @click="deleteTask((currentPage - 1) * pageSize + index)">
-                Delete
+                删除
               </van-button>
             </span>
           </div>
@@ -55,42 +55,42 @@
     <!-- Add Task Dialog -->
     <van-dialog
       v-model:show="showAddDialogFlag"
-      title="Add New Task"
+      title="新增"
       show-cancel-button
       @confirm="addTask"
       @cancel="cancelAdd"
     >
       <van-field
         v-model="newTask.name"
-        label="Task Name"
-        placeholder="Enter task name"
-        :rules="[{ required: true, message: 'Task name is required' }]"
+        label="名字"
+        placeholder="输入名字"
+        :rules="[{ required: true, message: '名字必填' }]"
       />
       <van-field
         v-model="newTask.status"
-        label="Status"
-        placeholder="e.g., Pending"
+        label="状态"
+        placeholder="输入状态"
       />
     </van-dialog>
 
     <!-- Edit Dialog -->
     <van-dialog
       v-model:show="showEditDialogFlag"
-      title="Edit Task"
+      title="编辑"
       show-cancel-button
       @confirm="saveEditedTask"
       @cancel="cancelEdit"
     >
       <van-field
         v-model="editTaskData.name"
-        label="Task Name"
-        placeholder="Enter task name"
+        label="名字"
+        placeholder="输入名字"
         :rules="[{ required: true, message: 'Task name is required' }]"
       />
       <van-field
         v-model="editTaskData.status"
-        label="Status"
-        placeholder="e.g., Pending"
+        label="状态"
+        placeholder="输入状态"
       />
     </van-dialog>
   </div>
@@ -151,7 +151,7 @@ export default {
     // Delete a task
     const deleteTask = (index) => {
       tasks.value.splice(index, 1);
-      showToast('Task deleted!');
+      showToast('已删除!');
       if (paginatedTasks.value.length === 0 && currentPage.value > 1) {
         currentPage.value--;
       }
