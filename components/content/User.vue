@@ -1,4 +1,7 @@
 <template>
+	<view>
+	    <van-button type="primary" @click="handleClick">Click Me</van-button>
+	</view>
 	<view class="container">
 		<!-- 操作栏 -->
 		<view class="action-bar">
@@ -71,6 +74,9 @@
 			}
 		},
 		methods: {
+			handleClick() {
+			      uni.showToast({ title: 'Button clicked!' });
+			    },
 			// 打开弹窗
 			openDialog(type, item) {
 				this.dialogType = type
