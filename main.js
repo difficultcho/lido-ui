@@ -19,11 +19,14 @@ import App from './App.vue'
 import store from './store';
 import Vant from 'vant';
 import 'vant/lib/index.css';
+import ElementPlus from 'element-plus';
+import 'element-plus/dist/index.css';
 
 export function createApp() {
   const app = createSSRApp(App)
   app.use(store);
   app.use(Vant);
+  app.use(ElementPlus);
   return {
     app
   }

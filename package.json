@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "element-plus": "^2.9.7",
     "vant": "^4.9.18"
   }
 }
