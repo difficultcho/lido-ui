@@ -21,12 +21,33 @@
 		<view v-if="showSidebar && isMobile" class="sidebar-mask" @click="toggleSidebar"></view>
 
 		<!-- 侧边栏菜单 -->
-		<view class="sidebar" :class="{'sidebar-open': showSidebar, 'sidebar-mobile': isMobile}">
+		<!-- <view class="sidebar" :class="{'sidebar-open': showSidebar, 'sidebar-mobile': isMobile}">
 			<scroll-view scroll-y class="menu-scroll">
 				<tree-menu :data="menuTree" :active-component="activeComponent" @item-click="handleMenuItemClick"
 					@toggle-folder="handleFolderToggle" />
 			</scroll-view>
+		</view> -->
+		<view class="sidebar" :class="{'sidebar-open': showSidebar, 'sidebar-mobile': isMobile}">
+			<scroll-view scroll-y class="menu-scroll">
+				<!-- 替换为 Element Tree -->
+				<el-tree ref="menuTreeRef" :data="processedMenuTree" :props="treeProps" :expand-on-click-node="false"
+					:current-node-key="activeComponent" node-key="id" @node-click="handleTreeNodeClick">
+					<template #default="{ node, data }">
+						<view class="custom-tree-node">
+							<uni-icons v-if="data.isFolder" :type="node.expanded ? 'folder-open' : 'folder'" size="16"
+								class="folder-icon" />
+							<text :class="['menu-text', { active: activeComponent === data.id }]">
+								{{ node.label }}
+							</text>
+						</view>
+					</template>
+				</el-tree>
+			</scroll-view>
 		</view>
+
+
+
+
 
 		<!-- 页面内容 -->
 		<view class="content">
@@ -65,6 +86,9 @@
 	import {
 		mapMutations
 	} from 'vuex';
+	import {
+		ElTree
+	} from 'element-plus'
 
 	export default {
 		props: {
@@ -77,7 +101,8 @@
 			User,
 			Role,
 			Order,
-			TreeMenu
+			TreeMenu,
+			ElTree,
 		},
 		data() {
 			return {
@@ -89,12 +114,25 @@
 				tabs: [], // 打开的标签页
 				activeTabId: null, // 当前激活的标签页ID
 
-				menuTree: []
+				menuTree: [],
+				treeProps: {
+					label: 'title',
+					children: 'children'
+				},
 			}
 		},
 		computed: {
 			userInfo() {
 				return this.$store.state.userInfo
+			},
+			// 转换菜单数据结构
+			processedMenuTree() {
+				const convert = items => items.map(item => ({
+					...item,
+					title: item.title,
+					children: item.isFolder ? convert(item.children || []) : null
+				}))
+				return convert(this.menuTree)
 			}
 		},
 		mounted() {
@@ -178,22 +216,6 @@
 				this.tabs = [...this.tabs, newTab]
 				this.activeTabId = newTab.id
 			},
-			// 切换标签页
-			switchTab(tabId) {
-				this.activeComponent = tabId
-				let folder = this.findFolder(null, this.menuTree, tabId).filter(item => item);
-				if (!folder[0].isOpen) {
-					// TODO 需要完善，目前只打开分支上的第一级菜单
-					this.handleFolderToggle(folder[0]);
-				}
-
-				this.activeTabId = tabId
-				// 触发组件的激活事件（如果需要）
-				const ref = this.$refs[`tabContent_${tabId}`]?.[0]
-				if (ref && ref.onTabActivate) {
-					ref.onTabActivate()
-				}
-			},
 			// 关闭标签页
 			closeTab(tabId) {
 				const index = this.tabs.findIndex(tab => tab.id === tabId)
@@ -228,6 +250,82 @@
 					}
 				}
 				return null;
+			},
+
+
+
+
+
+
+
+
+
+			// 树节点点击处理
+			handleTreeNodeClick(data, node) {
+				if (data.isFolder) {
+					// 文件夹节点处理
+					this.$refs.menuTreeRef.store.setExpanded(node, !node.expanded)
+					this.handleFolderToggle(data)
+				} else {
+					// 叶子节点处理
+					this.handleMenuItemClick(data)
+				}
+			},
+
+			// 修改后的文件夹切换方法
+			handleFolderToggle(currentItem) {
+				const closeSiblings = (items) => {
+					items.forEach(item => {
+						if (item.isFolder && item !== currentItem) {
+							const treeNode = this.$refs.menuTreeRef.getNode(item)
+							if (treeNode && treeNode.expanded) {
+								this.$refs.menuTreeRef.store.setExpanded(treeNode, false)
+							}
+						}
+					})
+				}
+				closeSiblings(this.menuTree)
+			},
+
+			// 切换标签页
+			// switchTab(tabId) {
+			// 	this.activeComponent = tabId
+			// 	let folder = this.findFolder(null, this.menuTree, tabId).filter(item => item);
+			// 	if (!folder[0].isOpen) {
+			// 		// TODO 需要完善，目前只打开分支上的第一级菜单
+			// 		this.handleFolderToggle(folder[0]);
+			// 	}
+
+			// 	this.activeTabId = tabId
+			// 	// 触发组件的激活事件（如果需要）
+			// 	const ref = this.$refs[`tabContent_${tabId}`]?.[0]
+			// 	if (ref && ref.onTabActivate) {
+			// 		ref.onTabActivate()
+			// 	}
+			// },
+			// 修改后的切换标签页方法
+			switchTab(tabId) {
+				const findNodePath = (node) => {
+					const path = []
+					let current = this.$refs.menuTreeRef.getNode(tabId)
+					while (current) {
+						path.unshift(current.data)
+						current = current.parent
+					}
+					return path.filter(item => item.isFolder)
+				}
+
+				// 展开所有父级目录
+				const folders = findNodePath()
+				folders.forEach(folder => {
+					const node = this.$refs.menuTreeRef.getNode(folder.id)
+					if (node && !node.expanded) {
+						this.$refs.menuTreeRef.store.setExpanded(node, true)
+					}
+				})
+
+				this.activeTabId = tabId
+				this.activeComponent = tabId
 			}
 		}
 	}
@@ -391,7 +489,7 @@
 		/* 根据实际布局调整 */
 		overflow: auto;
 	}
-	
+
 	.logoutDrawer {
 		margin-top: 60px;
 	}
@@ -399,6 +497,59 @@
 	@media (max-width: 768px) {
 		.content {
 			margin-left: 0 !important;
+		}
+	}
+
+
+	/* 自定义树形菜单样式 */
+	:deep(.el-tree) {
+		background: transparent;
+		color: #333;
+
+		.el-tree-node {
+			padding: 8px 0;
+
+			&:focus>.el-tree-node__content {
+				background-color: transparent;
+			}
+
+			.el-tree-node__content {
+				height: 40px;
+				transition: background 0.2s;
+
+				&:hover {
+					background: #f5f5f5;
+				}
+			}
+
+			&.is-current>.el-tree-node__content {
+				background: #e8f4ff;
+
+				.menu-text {
+					color: #1890ff;
+				}
+			}
+		}
+	}
+
+	.custom-tree-node {
+		display: flex;
+		align-items: center;
+		padding-left: 8px;
+
+		.folder-icon {
+			margin-right: 8px;
+			color: #666;
+		}
+
+		.menu-text {
+			font-size: 14px;
+			transition: color 0.2s;
+
+			&.active {
+				color: #1890ff;
+				font-weight: 500;
+			}
 		}
 	}
 </style>
