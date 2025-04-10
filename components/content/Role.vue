@@ -48,7 +48,7 @@
 				<template #default="scope">
 					<el-button size="small" @click="handleDetail(scope.row)">详情</el-button>
 					<el-button size="small" @click="handleEdit(scope.row)">编辑</el-button>
-					<el-button size="small" type="danger" @click="handleDelete(scope.$index)">删除</el-button>
+					<el-button size="small" type="danger" @click="handleDelete(scope.row)">删除 </el-button>
 				</template>
 			</el-table-column>
 		</el-table>
@@ -76,12 +76,14 @@
 						age: 25
 					}
 				],
+				editingIndex: -1, // 新增编辑索引
 				dialogVisible: false,
 				deleteDialogVisible: false,
 				detailDialogVisible: false,
 				dialogType: 'add',
 				currentDetail: {},
 				deleteIndex: -1,
+				deleteTarget: null, // 新增删除目标对象
 				searchText: '',
 				currentPage: 1,
 				pageSize: 5
@@ -113,29 +115,33 @@
 						...this.form
 					});
 				} else {
-					// 编辑时直接替换原数据
-					const index = this.tableData.findIndex(
-						item => item.name === this.form.name && item.age === this.form.age
-					);
-					if (index > -1) this.tableData.splice(index, 1, {
-						...this.form
-					});
+					if (this.editingIndex > -1) {
+						this.tableData.splice(this.editingIndex, 1, {
+							...this.form
+						});
+					}
 				}
 				this.resetForm();
+				this.editingIndex = -1; // 重置索引
 				this.dialogVisible = false;
 			},
 			handleEdit(row) {
+				this.editingIndex = this.tableData.indexOf(row); // 直接获取索引
 				this.form = {
 					...row
 				};
 				this.openDialog('edit');
 			},
-			handleDelete(index) {
-				this.deleteIndex = index;
+			handleDelete(row) {
+				this.deleteTarget = row;
 				this.deleteDialogVisible = true;
 			},
 			confirmDelete() {
-				this.tableData.splice(this.deleteIndex, 1);
+				const index = this.tableData.indexOf(this.deleteTarget);
+				if (index > -1) {
+					this.tableData.splice(index, 1);
+				}
+				this.deleteTarget = null;
 				this.deleteDialogVisible = false;
 			},
 			handleDetail(row) {
@@ -162,5 +168,9 @@
 
 	.el-descriptions__label {
 		width: 80px;
+	}
+
+	.operation-bar {
+		margin: 10px 0;
 	}
 </style>
