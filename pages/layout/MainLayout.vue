@@ -30,8 +30,9 @@
 		<view class="sidebar" :class="{'sidebar-open': showSidebar, 'sidebar-mobile': isMobile}">
 			<scroll-view scroll-y class="menu-scroll">
 				<!-- 替换为 Element Tree -->
-				<el-tree ref="menuTreeRef" :data="processedMenuTree" :props="treeProps" :expand-on-click-node="false"
-					:current-node-key="activeComponent" node-key="id" @node-click="handleTreeNodeClick">
+				<el-tree ref="menuTreeRef" :instance="true" :data="processedMenuTree" :props="treeProps"
+					:expand-on-click-node="false" :current-node-key="activeComponent" node-key="id"
+					@node-click="handleTreeNodeClick">
 					<template #default="{ node, data }">
 						<view class="custom-tree-node">
 							<uni-icons v-if="data.isFolder" :type="node.expanded ? 'folder-open' : 'folder'" size="16"
@@ -143,6 +144,11 @@
 			}
 			this.checkPlatform()
 			uni.$on('toggleSidebar', this.toggleSidebar)
+
+			this.$nextTick(() => {
+				const tree = this.$refs.menuTreeRef
+				console.log('Tree 方法列表:', Object.keys(tree?.$ || {}))
+			})
 		},
 		beforeDestroy() {
 			uni.$off('toggleSidebar', this.toggleSidebar)
@@ -260,16 +266,56 @@
 
 
 
-			// 树节点点击处理
 			handleTreeNodeClick(data, node) {
 				if (data.isFolder) {
-					// 文件夹节点处理
-					this.$refs.menuTreeRef.store.setExpanded(node, !node.expanded)
-					this.handleFolderToggle(data)
+					this.toggleFolder(data)
 				} else {
-					// 叶子节点处理
-					this.handleMenuItemClick(data)
+					this.openTab(data)
 				}
+			},
+
+			toggleFolder(data) {
+				// 方式一：尝试调用官方 API
+				const tree = this.getTreeInstance()
+				if (tree?.toggleNodeExpansion) {
+					tree.toggleNodeExpansion(data)
+				}
+				// 方式二：手动控制状态
+				else {
+					const node = tree?.getNode(data.id)
+					if (node) {
+						this.$set(node, 'expanded', !node.expanded)
+					}
+				}
+
+				// 关闭其他同级目录
+				const parent = this.findParent(data.id)
+				parent?.children?.forEach(item => {
+					if (item.isFolder && item.id !== data.id) {
+						const siblingNode = tree?.getNode(item.id)
+						if (siblingNode?.expanded) {
+							tree?.toggleNodeExpansion?.(item) || this.$set(siblingNode, 'expanded', false)
+						}
+					}
+				})
+			},
+
+			findParent(targetId, items = this.menuTree) {
+				for (const item of items) {
+					if (item.children?.some(child => child.id === targetId)) return item
+					if (item.children) {
+						const found = this.findParent(targetId, item.children)
+						if (found) return found
+					}
+				}
+				return null
+			},
+
+			// 安全的组件实例获取
+			getTreeInstance() {
+				const ref = this.$refs.menuTreeRef
+				// 处理 Vue 3 的 ref 包装
+				return ref?.$el ? ref : ref?.value
 			},
 
 			// 修改后的文件夹切换方法
@@ -501,13 +547,20 @@
 	}
 
 
+
+
+
+
+
+
+
 	/* 自定义树形菜单样式 */
 	:deep(.el-tree) {
 		background: transparent;
 		color: #333;
 
 		.el-tree-node {
-			padding: 8px 0;
+			padding: 0 0;
 
 			&:focus>.el-tree-node__content {
 				background-color: transparent;
