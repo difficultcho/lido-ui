@@ -270,7 +270,15 @@
 				if (data.isFolder) {
 					this.toggleFolder(data)
 				} else {
-					this.openTab(data)
+					this.activeComponent = data.id
+					const existingTab = this.tabs.find(tab =>
+						tab.component === data.component
+					)
+					if (existingTab) {
+						this.switchTab(existingTab.id)
+					} else {
+						this.openNewTab(data)
+					}
 				}
 			},
 
