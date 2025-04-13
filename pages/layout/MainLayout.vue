@@ -95,7 +95,7 @@
 		props: {
 			title: {
 				type: String,
-				default: '应用标题'
+				default: '学生课程管理系统'
 			}
 		},
 		components: {
@@ -183,7 +183,7 @@
 				this.showSidebar = !this.showSidebar
 			},
 			// 点击文件夹切换
-			handleFolderToggle(currentItem) {
+			handleFolderToggleaaa(currentItem) {
 				const closeSiblings = (items) => {
 					items.forEach(item => {
 						if (item.isFolder && item !== currentItem) {
@@ -297,15 +297,17 @@
 				}
 
 				// 关闭其他同级目录
-				const parent = this.findParent(data.id)
-				parent?.children?.forEach(item => {
-					if (item.isFolder && item.id !== data.id) {
-						const siblingNode = tree?.getNode(item.id)
-						if (siblingNode?.expanded) {
-							tree?.toggleNodeExpansion?.(item) || this.$set(siblingNode, 'expanded', false)
+				const closeSiblings = (items) => {
+					items.forEach(item => {
+						if (item.isFolder && item.id !== data.id) {
+							const treeNode = this.$refs.menuTreeRef.getNode(item.id)
+							if (treeNode && treeNode.expanded) {
+								this.$set(treeNode, 'expanded', false)
+							}
 						}
-					}
-				})
+					})
+				}
+				closeSiblings(this.menuTree)
 			},
 
 			findParent(targetId, items = this.menuTree) {
@@ -327,7 +329,7 @@
 			},
 
 			// 修改后的文件夹切换方法
-			handleFolderToggle(currentItem) {
+			handleFolderTogglebbb(currentItem) {
 				const closeSiblings = (items) => {
 					items.forEach(item => {
 						if (item.isFolder && item !== currentItem) {
@@ -374,7 +376,8 @@
 				folders.forEach(folder => {
 					const node = this.$refs.menuTreeRef.getNode(folder.id)
 					if (node && !node.expanded) {
-						this.$refs.menuTreeRef.store.setExpanded(node, true)
+						//this.$refs.menuTreeRef.store.setExpanded(node, true)
+						this.$set(node, 'expanded', !node.expanded)
 					}
 				})
 

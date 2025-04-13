@@ -43,18 +43,18 @@ export function getMenu() {
 	const immediatePromise = new Promise((resolve) => {
 		const menus = [{
 				id: 'sys',
-				title: '系统管理',
+				title: '人员管理',
 				isFolder: true,
 				isOpen: false,
 				children: [{
 						id: 'user',
-						title: '用户管理',
+						title: '学生管理',
 						component: 'User',
 						icon: 'person'
 					},
 					{
 						id: 'role',
-						title: '角色管理',
+						title: '教师管理',
 						component: 'Role',
 						icon: 'staff'
 					}
@@ -62,12 +62,12 @@ export function getMenu() {
 			},
 			{
 				id: 'order',
-				title: '订单管理',
+				title: '课程管理',
 				isFolder: true,
 				isOpen: false,
 				children: [{
 						id: 'order-list',
-						title: '订单列表',
+						title: '课程列表',
 						component: 'Order',
 						icon: 'shop'
 					}
