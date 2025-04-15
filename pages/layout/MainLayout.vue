@@ -95,7 +95,7 @@
 		props: {
 			title: {
 				type: String,
-				default: '学生课程管理系统'
+				default: 'CRM demo'
 			}
 		},
 		components: {
@@ -370,6 +370,21 @@
 					}
 					return path.filter(item => item.isFolder)
 				}
+				
+				
+				// 关闭其他同级目录
+				const closeSiblings = (items) => {
+					items.forEach(item => {
+						if (item.isFolder) {
+							const treeNode = this.$refs.menuTreeRef.getNode(item.id)
+							if (treeNode && treeNode.expanded) {
+								this.$set(treeNode, 'expanded', false)
+							}
+						}
+					})
+				}
+				closeSiblings(this.menuTree)
+				
 
 				// 展开所有父级目录
 				const folders = findNodePath()
