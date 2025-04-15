@@ -383,6 +383,11 @@
 						}
 					})
 				}
+				
+				if (!this.tabs.find(tab => tab.id === tabId) && this.tabs.length > 0) {
+					tabId = this.tabs[this.tabs.length - 1].id;
+				}
+				
 				closeSiblings(this.menuTree)
 				
 
