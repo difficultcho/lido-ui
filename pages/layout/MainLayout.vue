@@ -52,6 +52,16 @@
 
 		<!-- 页面内容 -->
 		<view class="content">
+			<view style="margin-bottom: 20px">
+				<el-button size="small" @click="addTab(editableTabsValue)">
+					add tab
+				</el-button>
+			</view>
+			<el-tabs v-model="editableTabsValue" type="card" class="demo-tabs" closable @tab-remove="removeTab">
+				<el-tab-pane v-for="item in editableTabs" :key="item.name" :label="item.title" :name="item.name">
+					{{ item.content }}
+				</el-tab-pane>
+			</el-tabs>
 			<!-- 标签页标签头 -->
 			<view class="tabs-bar">
 				<scroll-view scroll-x class="tabs-scroll">
@@ -90,6 +100,10 @@
 	import {
 		ElTree
 	} from 'element-plus'
+	import {
+		ref
+	} from 'vue'
+
 
 	export default {
 		props: {
@@ -120,6 +134,21 @@
 					label: 'title',
 					children: 'children'
 				},
+
+
+				tabIndex: 2,
+				editableTabsValue: ref('2'),
+				editableTabs: ref([{
+						title: 'Tab 1',
+						name: '1',
+						content: 'Tab 1 content',
+					},
+					{
+						title: 'Tab 2',
+						name: '2',
+						content: 'Tab 2 content',
+					},
+				])
 			}
 		},
 		computed: {
@@ -370,8 +399,8 @@
 					}
 					return path.filter(item => item.isFolder)
 				}
-				
-				
+
+
 				// 关闭其他同级目录
 				const closeSiblings = (items) => {
 					items.forEach(item => {
@@ -383,13 +412,13 @@
 						}
 					})
 				}
-				
+
 				if (!this.tabs.find(tab => tab.id === tabId) && this.tabs.length > 0) {
 					tabId = this.tabs[this.tabs.length - 1].id;
 				}
-				
+
 				closeSiblings(this.menuTree)
-				
+
 
 				// 展开所有父级目录
 				const folders = findNodePath()
@@ -403,6 +432,33 @@
 
 				this.activeTabId = tabId
 				this.activeComponent = tabId
+			},
+
+			addTab(targetName) {
+				const newTabName = `${++this.tabIndex}`
+				this.editableTabs.push({
+					title: 'New Tab',
+					name: newTabName,
+					content: 'New Tab content',
+				})
+				this.editableTabsValue = newTabName
+			},
+			removeTab(targetName) {
+				const tabs = this.editableTabs
+				let activeName = this.editableTabsValue
+				if (activeName === targetName) {
+					tabs.forEach((tab, index) => {
+						if (tab.name === targetName) {
+							const nextTab = tabs[index + 1] || tabs[index - 1]
+							if (nextTab) {
+								activeName = nextTab.name
+							}
+						}
+					})
+				}
+
+				this.editableTabsValue = activeName
+				this.editableTabs = tabs.filter((tab) => tab.name !== targetName)
 			}
 		}
 	}
