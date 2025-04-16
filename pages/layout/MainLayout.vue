@@ -52,7 +52,7 @@
 
 		<!-- 页面内容 -->
 		<view class="content">
-			<el-tabs v-model="activeTabId" type="card" class="demo-tabs" closable @tab-remove="removeTab2">
+			<el-tabs v-model="activeTabId" type="card" class="demo-tabs" closable @tab-remove="removeTab2" @tab-click="switchTab">
 <!-- 				<el-tab-pane v-for="item in editableTabs" :key="item.name" :label="item.title" :name="item.name">
 					{{ item.content }}
 				</el-tab-pane> -->
@@ -397,6 +397,10 @@
 			// },
 			// 修改后的切换标签页方法
 			switchTab(tabId) {
+				if (typeof tabId != "string") {
+					// switchTab 用于点击菜单或 tab 切换的不同情形
+					tabId = tabId.props.name;
+				}
 				const findNodePath = (node) => {
 					const path = []
 					let current = this.$refs.menuTreeRef.getNode(tabId)
