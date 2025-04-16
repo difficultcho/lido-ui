@@ -52,12 +52,7 @@
 
 		<!-- 页面内容 -->
 		<view class="content">
-			<view style="margin-bottom: 20px">
-				<el-button size="small" @click="addTab(editableTabsValue)">
-					add tab
-				</el-button>
-			</view>
-			<el-tabs v-model="editableTabsValue" type="card" class="demo-tabs" closable @tab-remove="removeTab2">
+			<el-tabs v-model="activeTabId" type="card" class="demo-tabs" closable @tab-remove="removeTab2">
 <!-- 				<el-tab-pane v-for="item in editableTabs" :key="item.name" :label="item.title" :name="item.name">
 					{{ item.content }}
 				</el-tab-pane> -->
@@ -70,9 +65,7 @@
 				</keep-alive> -->
 				<keep-alive>
 					<el-tab-pane v-for="tab in tabs" :key="tab.id" :label="tab.title" :name="tab.id">
-						<view v-show="activeTabId === tab.id">
-							<component :is="tab.component" :ref="`tabContent_${tab.id}`" />
-						</view>
+						<component :is="tab.component" :ref="`tabContent_${tab.id}`" />
 					</el-tab-pane>
 				</keep-alive>
 			</el-tabs>
@@ -458,7 +451,6 @@
 				this.editableTabsValue = newTabName
 			},
 			removeTab(targetName) {
-				debugger
 				const tabs = this.editableTabs
 				let activeName = this.editableTabsValue
 				if (activeName === targetName) {
@@ -476,7 +468,6 @@
 				this.editableTabs = tabs.filter((tab) => tab.name !== targetName)
 			},
 			removeTab2(targetName) {
-				debugger
 				const tabs = this.tabs
 				let activeTabId = this.activeTabId
 				if (activeTabId === targetName) {
