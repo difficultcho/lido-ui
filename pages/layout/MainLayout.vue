@@ -57,13 +57,27 @@
 					add tab
 				</el-button>
 			</view>
-			<el-tabs v-model="editableTabsValue" type="card" class="demo-tabs" closable @tab-remove="removeTab">
-				<el-tab-pane v-for="item in editableTabs" :key="item.name" :label="item.title" :name="item.name">
+			<el-tabs v-model="editableTabsValue" type="card" class="demo-tabs" closable @tab-remove="removeTab2">
+<!-- 				<el-tab-pane v-for="item in editableTabs" :key="item.name" :label="item.title" :name="item.name">
 					{{ item.content }}
-				</el-tab-pane>
+				</el-tab-pane> -->
+<!-- 				<keep-alive>
+					<template v-for="tab in tabs" :key="tab.id">
+						<view v-show="activeTabId === tab.id">
+							<component :is="tab.component" :ref="`tabContent_${tab.id}`" />
+						</view>
+					</template>
+				</keep-alive> -->
+				<keep-alive>
+					<el-tab-pane v-for="tab in tabs" :key="tab.id" :label="tab.title" :name="tab.id">
+						<view v-show="activeTabId === tab.id">
+							<component :is="tab.component" :ref="`tabContent_${tab.id}`" />
+						</view>
+					</el-tab-pane>
+				</keep-alive>
 			</el-tabs>
 			<!-- 标签页标签头 -->
-			<view class="tabs-bar">
+<!-- 			<view class="tabs-bar">
 				<scroll-view scroll-x class="tabs-scroll">
 					<view v-for="(tab, index) in tabs" :key="tab.id" class="tab-item"
 						:class="{ active: activeTabId === tab.id }" @click="switchTab(tab.id)">
@@ -71,9 +85,9 @@
 						<uni-icons type="close" size="14" class="close-icon" @click="closeTab(tab.id)"></uni-icons>
 					</view>
 				</scroll-view>
-			</view>
+			</view> -->
 			<!-- 标签页内容 -->
-			<view class="tabs-content">
+<!-- 			<view class="tabs-content">
 				<keep-alive>
 					<template v-for="tab in tabs" :key="tab.id">
 						<view v-show="activeTabId === tab.id">
@@ -81,7 +95,7 @@
 						</view>
 					</template>
 				</keep-alive>
-			</view>
+			</view> -->
 		</view>
 	</view>
 </template>
@@ -444,6 +458,7 @@
 				this.editableTabsValue = newTabName
 			},
 			removeTab(targetName) {
+				debugger
 				const tabs = this.editableTabs
 				let activeName = this.editableTabsValue
 				if (activeName === targetName) {
@@ -459,6 +474,24 @@
 
 				this.editableTabsValue = activeName
 				this.editableTabs = tabs.filter((tab) => tab.name !== targetName)
+			},
+			removeTab2(targetName) {
+				debugger
+				const tabs = this.tabs
+				let activeTabId = this.activeTabId
+				if (activeTabId === targetName) {
+					tabs.forEach((tab, index) => {
+						if (tab.id === targetName) {
+							const nextTab = tabs[index + 1] || tabs[index - 1]
+							if (nextTab) {
+								activeTabId = nextTab.id
+							}
+						}
+					})
+				}
+			
+				this.activeTabId = activeTabId
+				this.tabs = tabs.filter((tab) => tab.id !== targetName)
 			}
 		}
 	}
