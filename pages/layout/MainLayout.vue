@@ -485,8 +485,8 @@
 					})
 				}
 			
-				this.activeTabId = activeTabId
 				this.tabs = tabs.filter((tab) => tab.id !== targetName)
+				this.switchTab(activeTabId);
 			}
 		}
 	}
