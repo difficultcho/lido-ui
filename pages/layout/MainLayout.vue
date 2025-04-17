@@ -7,13 +7,47 @@
 				<text class="title">{{ title }}</text>
 			</view>
 			<view class="right-section">
+				<text>{{ userInfo.name }}</text>
 				<uni-icons type="person" size="24" color="#333" @click="showLogoutDrawer"></uni-icons>
+				
+				
+				<view class="user-menu-container">
+				    <el-dropdown 
+				      trigger="click"
+				      placement="bottom-end"
+				      @command="handleCommand"
+				    >
+				      <!-- 触发元素 - 用户头像 -->
+				      <span class="avatar-wrapper">
+				        <el-avatar
+				          :size="40"
+				          src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png"
+				        />
+				      </span>
+				
+				      <!-- 下拉菜单 -->
+				      <template #dropdown>
+				        <el-dropdown-menu>
+				          <el-dropdown-item command="profile">
+				            <el-icon><SwitchButton /></el-icon>
+				            <span>我的账户</span>
+				          </el-dropdown-item>
+				          
+				          <el-dropdown-item divided command="logout">
+				            <el-icon><SwitchButton /></el-icon>
+				            <span>退出登录</span>
+				          </el-dropdown-item>
+				        </el-dropdown-menu>
+				      </template>
+				    </el-dropdown>
+				  </view>
+				
+				
 			</view>
 		</view>
 
 		<!-- 登出 -->
 		<uni-drawer class="logoutDrawer" ref="showRight" mode="right" :mask-click="true">
-			<text>{{ '用户 ' + userInfo.name + ' 登出' }}</text>
 			<button type="default" @click="toLogout()">退出登录</button>
 		</uni-drawer>
 
@@ -197,6 +231,22 @@
 		},
 		methods: {
 			...mapMutations(['logout']),
+			
+			
+			handleCommand(command) {
+			  switch(command) {
+			    case 'profile':
+			      // 处理"我的账户"逻辑
+			      console.log('打开个人中心')
+			      break
+			    case 'logout':
+			      // 处理退出登录逻辑
+			      console.log('执行退出登录')
+			      break
+			  }
+			},
+			
+			
 			checkPlatform() {
 				// 根据屏幕宽度判断是否移动端
 				const {
