@@ -8,41 +8,38 @@
 			</view>
 			<view class="right-section">
 				<text>{{ userInfo.name }}</text>
-				<uni-icons type="person" size="24" color="#333" @click="showLogoutDrawer"></uni-icons>
-				
-				
+
+
 				<view class="user-menu-container">
-				    <el-dropdown 
-				      trigger="click"
-				      placement="bottom-end"
-				      @command="handleCommand"
-				    >
-				      <!-- 触发元素 - 用户头像 -->
-				      <span class="avatar-wrapper">
-				        <el-avatar
-				          :size="40"
-				          src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png"
-				        />
-				      </span>
-				
-				      <!-- 下拉菜单 -->
-				      <template #dropdown>
-				        <el-dropdown-menu>
-				          <el-dropdown-item command="profile">
-				            <el-icon><SwitchButton /></el-icon>
-				            <span>我的账户</span>
-				          </el-dropdown-item>
-				          
-				          <el-dropdown-item divided command="logout">
-				            <el-icon><SwitchButton /></el-icon>
-				            <span>退出登录</span>
-				          </el-dropdown-item>
-				        </el-dropdown-menu>
-				      </template>
-				    </el-dropdown>
-				  </view>
-				
-				
+					<el-dropdown trigger="click" placement="bottom-end" @command="handleCommand">
+						<!-- 触发元素 - 用户头像 -->
+						<span class="avatar-wrapper">
+							<el-avatar :size="40"
+								src="https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png" />
+						</span>
+
+						<!-- 下拉菜单 -->
+						<template #dropdown>
+							<el-dropdown-menu>
+								<el-dropdown-item command="profile">
+									<el-icon>
+										<Setting />
+									</el-icon>
+									<span>我的账户</span>
+								</el-dropdown-item>
+
+								<el-dropdown-item divided command="logout">
+									<el-icon>
+										<SwitchButton />
+									</el-icon>
+									<span>退出登录</span>
+								</el-dropdown-item>
+							</el-dropdown-menu>
+						</template>
+					</el-dropdown>
+				</view>
+
+
 			</view>
 		</view>
 
@@ -86,11 +83,12 @@
 
 		<!-- 页面内容 -->
 		<view class="content">
-			<el-tabs v-model="activeTabId" type="card" class="demo-tabs" closable @tab-remove="removeTab2" @tab-click="switchTab">
-<!-- 				<el-tab-pane v-for="item in editableTabs" :key="item.name" :label="item.title" :name="item.name">
+			<el-tabs v-model="activeTabId" type="card" class="demo-tabs" closable @tab-remove="removeTab2"
+				@tab-click="switchTab">
+				<!-- 				<el-tab-pane v-for="item in editableTabs" :key="item.name" :label="item.title" :name="item.name">
 					{{ item.content }}
 				</el-tab-pane> -->
-<!-- 				<keep-alive>
+				<!-- 				<keep-alive>
 					<template v-for="tab in tabs" :key="tab.id">
 						<view v-show="activeTabId === tab.id">
 							<component :is="tab.component" :ref="`tabContent_${tab.id}`" />
@@ -104,7 +102,7 @@
 				</keep-alive>
 			</el-tabs>
 			<!-- 标签页标签头 -->
-<!-- 			<view class="tabs-bar">
+			<!-- 			<view class="tabs-bar">
 				<scroll-view scroll-x class="tabs-scroll">
 					<view v-for="(tab, index) in tabs" :key="tab.id" class="tab-item"
 						:class="{ active: activeTabId === tab.id }" @click="switchTab(tab.id)">
@@ -114,7 +112,7 @@
 				</scroll-view>
 			</view> -->
 			<!-- 标签页内容 -->
-<!-- 			<view class="tabs-content">
+			<!-- 			<view class="tabs-content">
 				<keep-alive>
 					<template v-for="tab in tabs" :key="tab.id">
 						<view v-show="activeTabId === tab.id">
@@ -231,22 +229,23 @@
 		},
 		methods: {
 			...mapMutations(['logout']),
-			
-			
+
+
 			handleCommand(command) {
-			  switch(command) {
-			    case 'profile':
-			      // 处理"我的账户"逻辑
-			      console.log('打开个人中心')
-			      break
-			    case 'logout':
-			      // 处理退出登录逻辑
-			      console.log('执行退出登录')
-			      break
-			  }
+				switch (command) {
+					case 'profile':
+						// 处理"我的账户"逻辑
+						console.log('打开个人中心')
+						break
+					case 'logout':
+						// 处理退出登录逻辑
+						console.log('执行退出登录')
+						this.toLogout();
+						break
+				}
 			},
-			
-			
+
+
 			checkPlatform() {
 				// 根据屏幕宽度判断是否移动端
 				const {
@@ -534,7 +533,7 @@
 						}
 					})
 				}
-			
+
 				this.tabs = tabs.filter((tab) => tab.id !== targetName)
 				this.switchTab(activeTabId);
 			}
