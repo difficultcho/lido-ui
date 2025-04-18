@@ -148,7 +148,7 @@
 		props: {
 			title: {
 				type: String,
-				default: 'CRM demo'
+				default: '学生管理系统'
 			}
 		},
 		components: {
